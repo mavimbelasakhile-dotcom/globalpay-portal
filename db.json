@@ -1,0 +1,64 @@
+{
+  "users": [
+    {
+      "name": "Sakhile",
+      "email": "SakhileM@hotmail.com",
+      "password": "$2b$10$bl6gb4DUCb4qQGmZ9nCoZOun6cm1Qumi6q2ASTyfTUJl4MDa9oo.i",
+      "id": "yTLkqlI2zcQ"
+    },
+    {
+      "name": "Sakhile",
+      "email": "SakhileM11@hotmail.com",
+      "password": "$2b$10$M2eiEOinctpEQaWs9ElQXuEMUOcIJnxIcrlUSGx7BaxLezwo9PTI.",
+      "id": "JB762GczKXg"
+    },
+    {
+      "name": "Sakhile",
+      "email": "nyambosed@gmail.com",
+      "password": "$2b$10$CIqLGnvbEvo47xtqJdd6P.reNMoCoATiOxJFlhpMEiThv4LmJAH8e",
+      "id": "uazmlh_ILz0"
+    }
+  ],
+  "payments": [
+    {
+      "userId": "Pol417xxj3E",
+      "recipientName": "Rosebank College",
+      "recipientAccount": "2011589657",
+      "recipientBank": "Absa",
+      "swiftCode": "ABSAZAJJ",
+      "amount": 10000,
+      "currency": "ZAR",
+      "reference": "ST10506152",
+      "status": "Pending Approval",
+      "date": "2026-05-04T05:56:17.865Z",
+      "id": "-nq-7eQMD_M"
+    },
+    {
+      "userId": "uazmlh_ILz0",
+      "recipientName": "Rosebank College",
+      "recipientAccount": "2011589657",
+      "recipientBank": "Nedbank",
+      "swiftCode": "NEDSZAJJ",
+      "amount": 10000,
+      "currency": "ZAR",
+      "reference": "ST10506152",
+      "status": "Pending Approval",
+      "date": "2026-05-04T13:03:26.182Z",
+      "id": "bJlumqzQAfs"
+    },
+    {
+      "userId": "uazmlh_ILz0",
+      "recipientName": "Credobooks",
+      "recipientAccount": "62890874323",
+      "recipientBank": "FNB",
+      "swiftCode": "FIRNZAJJ",
+      "amount": 2850,
+      "currency": "ZAR",
+      "reference": "INV0990",
+      "status": "Pending Approval",
+      "date": "2026-05-04T13:15:13.589Z",
+      "id": "DrYeu-p2zww"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
