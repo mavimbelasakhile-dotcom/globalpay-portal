@@ -275,6 +275,41 @@ const s = {
     fontWeight: '600',
     cursor: 'pointer',
   },
+  paymentMethods: {
+    display: 'flex',
+    gap: '10px',
+    flexWrap: 'wrap',
+  },
+  methodCard: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '14px 18px',
+    border: '1.5px solid #e0e0e0',
+    borderRadius: '12px',
+    background: '#f7f7fb',
+    cursor: 'pointer',
+    flex: '1',
+    minWidth: '80px',
+    transition: 'all 0.2s',
+  },
+  methodCardActive: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '14px 18px',
+    border: '2px solid #667eea',
+    borderRadius: '12px',
+    background: '#eef2ff',
+    cursor: 'pointer',
+    flex: '1',
+    minWidth: '80px',
+    boxShadow: '0 2px 8px rgba(102,126,234,0.2)',
+  },
+  methodIcon: { fontSize: '24px' },
+  methodName: { fontSize: '11px', fontWeight: '600', color: '#555', textAlign: 'center' },
   idleOverlay: {
     position: 'fixed',
     inset: 0,
@@ -323,6 +358,13 @@ const s = {
 const FEE_RATE = 0.015;     // 1.5% admin fee
 const DELIVERY_RATE = 0.07; // 7% delivery fee
 
+const paymentMethods = [
+  { id: 'bank_transfer', name: 'Bank Transfer', icon: '🏦' },
+  { id: 'paypal',        name: 'PayPal',        icon: '💳' },
+  { id: 'bitcoin',       name: 'Bitcoin',       icon: '₿' },
+  { id: 'apple_pay',     name: 'Apple Pay',     icon: '🍎' },
+];
+
 const PaymentPortal = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -335,6 +377,7 @@ const PaymentPortal = () => {
     swiftCode: '',
     amount: '',
     currency: 'ZAR',
+    paymentMethod: 'bank_transfer',
     reference: '',
   });
 
@@ -411,6 +454,7 @@ const PaymentPortal = () => {
         swiftCode: form.swiftCode,
         amount: parseFloat(form.amount),
         currency: form.currency,
+        paymentMethod: form.paymentMethod,
         reference: form.reference,
         status: 'Pending Approval',
         date: new Date().toISOString(),
@@ -433,7 +477,7 @@ const PaymentPortal = () => {
 
   const handleNewPayment = () => {
     setSuccess(false);
-    setForm({ recipientName: '', recipientAccount: '', recipientBank: '', swiftCode: '', amount: '', currency: 'ZAR', reference: '' });
+    setForm({ recipientName: '', recipientAccount: '', recipientBank: '', swiftCode: '', amount: '', currency: 'ZAR', paymentMethod: 'bank_transfer', reference: '' });
     setErrors({});
   };
 
@@ -485,6 +529,7 @@ Delivery Fee (7%): ${sym}${delivery.toFixed(2)}
 Total Deducted:    ${sym}${totalAmt.toFixed(2)} ${p.currency}
 
 Reference:         ${p.reference || 'N/A'}
+Payment Method:    ${paymentMethods.find(m => m.id === p.paymentMethod)?.name || 'Bank Transfer'}
 
 ════════════════════════════════════════════
 This is a system-generated receipt.
@@ -610,6 +655,27 @@ Send money securely across borders.
                 <option key={c.code} value={c.code}>{c.flag} {c.code} — {c.label}</option>
               ))}
             </select>
+          </div>
+
+          {/* Payment Method */}
+          <div style={s.fieldGroupFull}>
+            <label style={s.label}>Payment Method</label>
+            <div style={s.paymentMethods}>
+              {paymentMethods.map((method) => (
+                <div
+                  key={method.id}
+                  style={form.paymentMethod === method.id ? s.methodCardActive : s.methodCard}
+                  onClick={() => {
+                    setForm({ ...form, paymentMethod: method.id });
+                    setErrors({ ...errors, paymentMethod: '' });
+                  }}
+                >
+                  <span style={s.methodIcon}>{method.icon}</span>
+                  <span style={s.methodName}>{method.name}</span>
+                </div>
+              ))}
+            </div>
+            {errors.paymentMethod && <span style={s.errorText}>{errors.paymentMethod}</span>}
           </div>
 
           {/* Reference */}
