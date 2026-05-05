@@ -2,7 +2,6 @@ import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import { sanitise } from '../utils/validation';
 
-// Use HTTPS in production, HTTP only for local dev
 const BASE_URL =
   window.location.hostname === 'localhost'
     ? 'http://localhost:3001'
@@ -10,7 +9,6 @@ const BASE_URL =
 
 const SALT_ROUNDS = 10;
 
-// Register — sanitise inputs, check duplicate, hash password
 export const registerUser = async ({ name, email, password }) => {
   const cleanName = sanitise(name);
   const cleanEmail = sanitise(email);
@@ -31,7 +29,6 @@ export const registerUser = async ({ name, email, password }) => {
   return response.data;
 };
 
-// Login — sanitise email, fetch by email, bcrypt compare
 export const loginUser = async ({ email, password }) => {
   const cleanEmail = sanitise(email);
 

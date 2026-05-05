@@ -1,34 +1,16 @@
-// Centralised input whitelist validation using strict regex patterns.
-// Every field must match its pattern — anything outside is rejected.
-
 export const PATTERNS = {
-  // Full name: letters, spaces, hyphens, apostrophes only (2–60 chars)
   name: /^[a-zA-Z\s'\-]{2,60}$/,
-
-  // Standard email format
   email: /^[a-zA-Z0-9._%+\-]{1,64}@[a-zA-Z0-9.\-]{1,253}\.[a-zA-Z]{2,}$/,
-
-  // Password: min 6, max 128 chars, printable ASCII only (no control chars)
   password: /^[\x20-\x7E]{6,128}$/,
-
-  // Account number / IBAN: digits only, 6–34 chars
   accountNumber: /^\d{6,34}$/,
-
-  // SWIFT/BIC: 8 or 11 uppercase alphanumeric chars
   swiftCode: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/,
-
-  // Amount: positive decimal, up to 2 decimal places, max 10 digits before decimal
   amount: /^\d{1,10}(\.\d{1,2})?$/,
-
-  // Payment reference: alphanumeric, spaces, hyphens, #, / (optional, max 100 chars)
   reference: /^[a-zA-Z0-9\s\-#/]{0,100}$/,
 };
 
-// Sanitise: strip any character not in the allowed whitelist for each field
 export const sanitise = (value) =>
   value.replace(/[<>"'`;(){}[\]\\]/g, '').trim();
 
-// Login / Register validators
 export const validateLoginForm = ({ email, password }) => {
   const errors = {};
 
@@ -78,7 +60,6 @@ export const validateRegisterForm = ({ name, email, password }) => {
   return errors;
 };
 
-// Payment portal validators
 export const validatePaymentForm = ({ recipientName, recipientAccount, recipientBank, swiftCode, amount, reference }) => {
   const errors = {};
 

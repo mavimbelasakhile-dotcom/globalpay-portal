@@ -373,8 +373,8 @@ const s = {
   },
 };
 
-const FEE_RATE = 0.015;     // 1.5% admin fee
-const DELIVERY_RATE = 0.07; // 7% delivery fee
+const FEE_RATE = 0.015;
+const DELIVERY_RATE = 0.07;
 
 const paymentMethods = [
   { id: 'bank_transfer', name: 'Bank Transfer', icon: '🏦' },
@@ -404,7 +404,6 @@ const PaymentPortal = () => {
   const [success, setSuccess] = useState(false);
   const [payments, setPayments] = useState([]);
 
-  // Load payment history for this user on mount
   useEffect(() => {
     if (user.id) {
       axios.get(`http://localhost:3001/payments?userId=${user.id}`)
@@ -419,7 +418,6 @@ const PaymentPortal = () => {
   const deliveryFee = parseFloat((amount * DELIVERY_RATE).toFixed(2));
   const total = parseFloat((amount + adminFee + deliveryFee).toFixed(2));
 
-  // Per-field regex whitelist — strips invalid chars as user types
   const fieldFilters = {
     recipientName:    (v) => v.replace(/[^a-zA-Z\s'\-]/g, ''),
     recipientAccount: (v) => v.replace(/[^0-9]/g, '').slice(0, 34),
@@ -430,7 +428,6 @@ const PaymentPortal = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Dropdowns — no filtering needed
     if (name === 'currency') {
       setForm({ ...form, currency: value });
       return;
@@ -447,7 +444,6 @@ const PaymentPortal = () => {
       return;
     }
 
-    // Apply per-field filter if defined, otherwise generic sanitise
     const filtered = fieldFilters[name] ? fieldFilters[name](value) : sanitise(value);
     setForm({ ...form, [name]: filtered });
     setErrors({ ...errors, [name]: '' });
@@ -463,7 +459,6 @@ const PaymentPortal = () => {
     }
     setLoading(true);
     try {
-      // Save payment record with "Pending Approval" status
       const newPayment = {
         userId: user.id,
         recipientName: form.recipientName,
@@ -478,11 +473,9 @@ const PaymentPortal = () => {
         date: new Date().toISOString(),
       };
       await axios.post('http://localhost:3001/payments', newPayment);
-      // Refresh history
       const res = await axios.get(`http://localhost:3001/payments?userId=${user.id}`);
       setPayments(res.data);
     } catch (e) {
-      // continue even if save fails
     } finally {
       setLoading(false);
       setSuccess(true);
@@ -518,13 +511,11 @@ const PaymentPortal = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Header gradient bar
     doc.setFillColor(102, 126, 234);
     doc.rect(0, 0, pageWidth, 40, 'F');
     doc.setFillColor(118, 75, 162);
     doc.rect(0, 35, pageWidth, 5, 'F');
 
-    // Company branding
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
@@ -533,18 +524,15 @@ const PaymentPortal = () => {
     doc.setFont('helvetica', 'normal');
     doc.text('International Payment Transfer | Send money securely across borders', pageWidth / 2, 28, { align: 'center' });
 
-    // Receipt title
     doc.setTextColor(45, 45, 45);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text('PAYMENT RECEIPT', pageWidth / 2, 55, { align: 'center' });
 
-    // Divider
     doc.setDrawColor(102, 126, 234);
     doc.setLineWidth(0.5);
     doc.line(20, 60, pageWidth - 20, 60);
 
-    // Transaction info
     let y = 72;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -593,7 +581,6 @@ const PaymentPortal = () => {
     addRow('Admin Fee (1.5%):', `${sym}${admin.toFixed(2)}`);
     addRow('Delivery Fee (7%):', `${sym}${delivery.toFixed(2)}`);
 
-    // Total line
     y += 2;
     doc.setDrawColor(200, 200, 200);
     doc.line(25, y, pageWidth - 25, y);
@@ -610,7 +597,6 @@ const PaymentPortal = () => {
     doc.setFont('helvetica', 'normal');
     addRow('Reference:', p.reference || 'N/A');
 
-    // Footer
     y += 16;
     doc.setDrawColor(102, 126, 234);
     doc.line(20, y, pageWidth - 20, y);
@@ -620,13 +606,11 @@ const PaymentPortal = () => {
     doc.text('This is a system-generated receipt from GlobalPay Portal.', pageWidth / 2, y, { align: 'center' });
     doc.text('International Payment Transfer — Send money securely across borders.', pageWidth / 2, y + 5, { align: 'center' });
 
-    // Save
     doc.save(`GlobalPay_Receipt_${p.id}.pdf`);
   };
 
   return (
     <div style={s.page}>
-      {/* Navbar */}
       <div style={s.navbar}>
         <div style={s.brand}>🌐 GlobalPay Portal</div>
         <div style={s.userSection}>
@@ -639,7 +623,6 @@ const PaymentPortal = () => {
         <button style={s.logoutBtn} onClick={handleLogout}>Logout</button>
       </div>
 
-      {/* Dashboard */}
       <div style={s.dashboard}>
         <div style={s.dashCard}>
           <div style={s.dashIcon}>📊</div>
@@ -663,13 +646,11 @@ const PaymentPortal = () => {
         </div>
       </div>
 
-      {/* Payment Card */}
       <div style={s.card}>
         <div style={s.cardTitle}>International Payment Transfer</div>
         <div style={s.cardSubtitle}>Send money securely across borders</div>
 
         <div style={s.grid}>
-          {/* Recipient Name */}
           <div style={s.fieldGroup}>
             <label style={s.label}>Recipient Full Name</label>
             <input
@@ -684,7 +665,6 @@ const PaymentPortal = () => {
             {errors.recipientName && <span style={s.errorText}>{errors.recipientName}</span>}
           </div>
 
-          {/* Recipient Account */}
           <div style={s.fieldGroup}>
             <label style={s.label}>Account Number / IBAN</label>
             <input
@@ -700,7 +680,6 @@ const PaymentPortal = () => {
             {errors.recipientAccount && <span style={s.errorText}>{errors.recipientAccount}</span>}
           </div>
 
-          {/* Bank Name */}
           <div style={s.fieldGroup}>
             <label style={s.label}>Recipient Bank Name</label>
             <select
@@ -717,7 +696,6 @@ const PaymentPortal = () => {
             {errors.recipientBank && <span style={s.errorText}>{errors.recipientBank}</span>}
           </div>
 
-          {/* SWIFT Code */}
           <div style={s.fieldGroup}>
             <label style={s.label}>Swift Code</label>
             <input
@@ -730,7 +708,6 @@ const PaymentPortal = () => {
             {errors.swiftCode && <span style={s.errorText}>{errors.swiftCode}</span>}
           </div>
 
-          {/* Amount */}
           <div style={s.fieldGroup}>
             <label style={s.label}>Amount</label>
             <input
@@ -746,7 +723,6 @@ const PaymentPortal = () => {
             {errors.amount && <span style={s.errorText}>{errors.amount}</span>}
           </div>
 
-          {/* Currency */}
           <div style={s.fieldGroup}>
             <label style={s.label}>Currency</label>
             <select style={s.select} name="currency" value={form.currency} onChange={handleChange}>
@@ -756,7 +732,6 @@ const PaymentPortal = () => {
             </select>
           </div>
 
-          {/* Payment Method */}
           <div style={s.fieldGroupFull}>
             <label style={s.label}>Payment Method</label>
             <div style={s.paymentMethods}>
@@ -777,7 +752,6 @@ const PaymentPortal = () => {
             {errors.paymentMethod && <span style={s.errorText}>{errors.paymentMethod}</span>}
           </div>
 
-          {/* Reference */}
           <div style={s.fieldGroupFull}>
             <label style={s.label}>Payment Reference (optional)</label>
             <input
@@ -792,7 +766,6 @@ const PaymentPortal = () => {
             {errors.reference && <span style={s.errorText}>{errors.reference}</span>}
           </div>
 
-          {/* Summary */}
           {amount > 0 && (
             <div style={s.summaryBox}>
               <div style={s.summaryTitle}>Transfer Summary</div>
@@ -803,7 +776,6 @@ const PaymentPortal = () => {
             </div>
           )}
 
-          {/* Submit */}
           <button
             style={loading ? s.submitBtnDisabled : s.submitBtn}
             onClick={handleSubmit}
@@ -814,7 +786,6 @@ const PaymentPortal = () => {
         </div>
       </div>
 
-      {/* Processing notification modal */}
       {success && (
         <div style={s.successOverlay}>
           <div style={s.successCard}>
@@ -831,7 +802,6 @@ const PaymentPortal = () => {
         </div>
       )}
 
-      {/* Payment History */}
       <div style={s.historyCard}>
         <div style={s.historyTitle}>📋 Payment History</div>
         {payments.length === 0 ? (
@@ -869,7 +839,6 @@ const PaymentPortal = () => {
           </table>
         )}
       </div>
-      {/* Idle session warning */}
       {showWarning && (
         <div style={s.idleOverlay}>
           <div style={s.idleCard}>

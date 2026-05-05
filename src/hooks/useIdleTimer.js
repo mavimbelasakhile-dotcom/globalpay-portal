@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
-const IDLE_TIMEOUT = 60 * 1000;   // 1 min idle → show warning
-const WARN_DURATION = 30;          // 30 second countdown
+const IDLE_TIMEOUT = 60 * 1000;
+const WARN_DURATION = 30;
 
 const useIdleTimer = (onLogout) => {
   const [showWarning, setShowWarning] = useState(false);
@@ -25,7 +25,6 @@ const useIdleTimer = (onLogout) => {
       setShowWarning(true);
       setCountdown(WARN_DURATION);
 
-      // Tick countdown
       let secs = WARN_DURATION;
       countdownRef.current = setInterval(() => {
         secs -= 1;
@@ -33,7 +32,6 @@ const useIdleTimer = (onLogout) => {
         if (secs <= 0) clearInterval(countdownRef.current);
       }, 1000);
 
-      // Auto logout after countdown
       logoutTimer.current = setTimeout(() => {
         onLogout();
       }, WARN_DURATION * 1000);
@@ -50,7 +48,6 @@ const useIdleTimer = (onLogout) => {
 
   useEffect(() => {
     const handleActivity = () => {
-      // Only reset if warning is NOT showing
       if (!warningShown.current) {
         startIdleWatch();
       }
@@ -58,13 +55,12 @@ const useIdleTimer = (onLogout) => {
 
     const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
     events.forEach((e) => window.addEventListener(e, handleActivity));
-    startIdleWatch(); // kick off on mount
+    startIdleWatch();
 
     return () => {
       events.forEach((e) => window.removeEventListener(e, handleActivity));
       clearAllTimers();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { showWarning, countdown, continueSession };

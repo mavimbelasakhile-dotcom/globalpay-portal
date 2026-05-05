@@ -45,7 +45,6 @@ const styles = {
   submitBtnDisabled: { width: '100%', padding: '14px', background: '#ccc', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'not-allowed', letterSpacing: '0.5px', marginBottom: '14px' },
   switchRow: { textAlign: 'center', fontSize: '13px', color: '#888' },
   switchLink: { color: '#667eea', fontWeight: '700', cursor: 'pointer', marginLeft: '4px' },
-  // Toaster
   toaster: {
     position: 'fixed',
     top: '24px',
@@ -84,7 +83,6 @@ const LoginSignup = () => {
   const [lockedOut, setLockedOut] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
-  // Auto-dismiss toaster after 4 seconds
   useEffect(() => {
     if (!toastMsg) return;
     const t = setTimeout(() => setToastMsg(''), 4000);
@@ -105,7 +103,6 @@ const LoginSignup = () => {
     setApiError('');
   };
 
-  // Brute force lockout countdown
   useEffect(() => {
     if (!lockedOut) return;
     if (countdown <= 0) {
@@ -132,7 +129,6 @@ const LoginSignup = () => {
     try {
       if (action === 'Sign Up') {
         await registerUser(formData);
-        // Show toaster then redirect to login
         navigate('/', {
           state: { mode: 'Login', successMsg: '✅ Account created successfully! Please log in.' },
         });
@@ -171,7 +167,6 @@ const LoginSignup = () => {
   return (
     <div style={styles.page}>
 
-      {/* Toast notification */}
       {toastMsg && (
         <div style={styles.toaster}>
           {toastMsg}
