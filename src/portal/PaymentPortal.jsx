@@ -87,6 +87,23 @@ const s = {
     padding: '40px',
     boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
   },
+  dashboard: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '16px',
+    maxWidth: '900px',
+    margin: '0 auto 24px auto',
+  },
+  dashCard: {
+    background: '#fff',
+    borderRadius: '16px',
+    padding: '20px 16px',
+    textAlign: 'center',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+  },
+  dashIcon: { fontSize: '28px', marginBottom: '8px' },
+  dashValue: { fontSize: '22px', fontWeight: '800', color: '#2d2d2d', marginBottom: '4px' },
+  dashLabel: { fontSize: '12px', color: '#888', fontWeight: '600' },
   cardTitle: {
     fontSize: '22px',
     fontWeight: '700',
@@ -562,6 +579,30 @@ Send money securely across borders.
           </div>
         </div>
         <button style={s.logoutBtn} onClick={handleLogout}>Logout</button>
+      </div>
+
+      {/* Dashboard */}
+      <div style={s.dashboard}>
+        <div style={s.dashCard}>
+          <div style={s.dashIcon}>📊</div>
+          <div style={s.dashValue}>{payments.length}</div>
+          <div style={s.dashLabel}>Total Payments</div>
+        </div>
+        <div style={s.dashCard}>
+          <div style={s.dashIcon}>📅</div>
+          <div style={s.dashValue}>{payments.filter(p => new Date(p.date).toDateString() === new Date().toDateString()).length}</div>
+          <div style={s.dashLabel}>Today's Payments</div>
+        </div>
+        <div style={s.dashCard}>
+          <div style={s.dashIcon}>💰</div>
+          <div style={s.dashValue}>R{payments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0).toFixed(2)}</div>
+          <div style={s.dashLabel}>Total Amount</div>
+        </div>
+        <div style={s.dashCard}>
+          <div style={s.dashIcon}>⏳</div>
+          <div style={s.dashValue}>{payments.filter(p => p.status === 'Pending Approval').length}</div>
+          <div style={s.dashLabel}>Pending</div>
+        </div>
       </div>
 
       {/* Payment Card */}
