@@ -59,6 +59,12 @@
       "email": "MillenniumM1@gmail.com",
       "password": "$2b$10$bRvY5MwI0HcEArbFjy.KzOey81/aZ9vWcUjJgZWu1AgwfxwADzF5W",
       "id": "jsHoIiXep7E"
+    },
+    {
+      "name": "thandekaM",
+      "email": "TM@gmail.com",
+      "password": "$2b$10$LPWNtqq3PJASlKZ8wN3pYOkbaTkBedqajFhvjyVBoeUxY2orVczYO",
+      "id": "jO45RcaJ8z0"
     }
   ],
   "payments": [
@@ -152,6 +158,20 @@
       "status": "Pending Approval",
       "date": "2026-05-04T17:28:52.990Z",
       "id": "YstFxbXqcmo"
+    },
+    {
+      "userId": "jO45RcaJ8z0",
+      "recipientName": "Credobooks",
+      "recipientAccount": "62745851586",
+      "recipientBank": "Absa",
+      "swiftCode": "ABSAZAJJ",
+      "amount": 45000,
+      "currency": "ZAR",
+      "paymentMethod": "bank_transfer",
+      "reference": "INV0990",
+      "status": "Pending Approval",
+      "date": "2026-05-05T12:55:00.164Z",
+      "id": "tB-DNZ7CrLg"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

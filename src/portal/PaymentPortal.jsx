@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { jsPDF } from 'jspdf';
 import { validatePaymentForm, sanitise } from '../utils/validation';
 import useIdleTimer from '../hooks/useIdleTimer';
 
@@ -512,58 +513,115 @@ const PaymentPortal = () => {
     const admin = parseFloat((amt * FEE_RATE).toFixed(2));
     const delivery = parseFloat((amt * DELIVERY_RATE).toFixed(2));
     const totalAmt = parseFloat((amt + admin + delivery).toFixed(2));
+    const method = paymentMethods.find(m => m.id === p.paymentMethod)?.name || 'Bank Transfer';
 
-    const receipt = `
-════════════════════════════════════════════
-       🌐 GLOBALPAY PORTAL - PAYMENT RECEIPT
-════════════════════════════════════════════
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-Transaction ID:    ${p.id}
-Date:              ${new Date(p.date).toLocaleString()}
-Status:            ${p.status}
+    // Header gradient bar
+    doc.setFillColor(102, 126, 234);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setFillColor(118, 75, 162);
+    doc.rect(0, 35, pageWidth, 5, 'F');
 
-────────────────────────────────────────────
-SENDER DETAILS
-────────────────────────────────────────────
-Name:              ${user.name}
-Email:             ${user.email}
+    // Company branding
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('GlobalPay Portal', pageWidth / 2, 18, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('International Payment Transfer | Send money securely across borders', pageWidth / 2, 28, { align: 'center' });
 
-────────────────────────────────────────────
-RECIPIENT DETAILS
-────────────────────────────────────────────
-Name:              ${p.recipientName}
-Account Number:    ${p.recipientAccount}
-Bank:              ${p.recipientBank}
-Swift Code:        ${p.swiftCode}
+    // Receipt title
+    doc.setTextColor(45, 45, 45);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PAYMENT RECEIPT', pageWidth / 2, 55, { align: 'center' });
 
-────────────────────────────────────────────
-PAYMENT BREAKDOWN
-────────────────────────────────────────────
-Amount:            ${sym}${amt.toFixed(2)} ${p.currency}
-Admin Fee (1.5%):  ${sym}${admin.toFixed(2)}
-Delivery Fee (7%): ${sym}${delivery.toFixed(2)}
-                   ─────────────────
-Total Deducted:    ${sym}${totalAmt.toFixed(2)} ${p.currency}
+    // Divider
+    doc.setDrawColor(102, 126, 234);
+    doc.setLineWidth(0.5);
+    doc.line(20, 60, pageWidth - 20, 60);
 
-Reference:         ${p.reference || 'N/A'}
-Payment Method:    ${paymentMethods.find(m => m.id === p.paymentMethod)?.name || 'Bank Transfer'}
+    // Transaction info
+    let y = 72;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
 
-════════════════════════════════════════════
-This is a system-generated receipt.
-GlobalPay Portal - International Payment Transfer
-Send money securely across borders.
-════════════════════════════════════════════
-`.trim();
+    const addRow = (label, value) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(80, 80, 80);
+      doc.text(label, 25, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(45, 45, 45);
+      doc.text(String(value), 90, y);
+      y += 8;
+    };
 
-    const blob = new Blob([receipt], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `GlobalPay_Receipt_${p.id}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const addSection = (title) => {
+      y += 4;
+      doc.setFillColor(247, 247, 251);
+      doc.rect(20, y - 5, pageWidth - 40, 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(102, 126, 234);
+      doc.setFontSize(10);
+      doc.text(title, 25, y);
+      doc.setTextColor(45, 45, 45);
+      y += 12;
+    };
+
+    addSection('TRANSACTION DETAILS');
+    addRow('Transaction ID:', p.id);
+    addRow('Date:', new Date(p.date).toLocaleString());
+    addRow('Status:', p.status);
+    addRow('Payment Method:', method);
+
+    addSection('SENDER DETAILS');
+    addRow('Name:', user.name);
+    addRow('Email:', user.email);
+
+    addSection('RECIPIENT DETAILS');
+    addRow('Name:', p.recipientName);
+    addRow('Account Number:', p.recipientAccount);
+    addRow('Bank:', p.recipientBank);
+    addRow('Swift Code:', p.swiftCode);
+
+    addSection('PAYMENT BREAKDOWN');
+    addRow('Amount:', `${sym}${amt.toFixed(2)} ${p.currency}`);
+    addRow('Admin Fee (1.5%):', `${sym}${admin.toFixed(2)}`);
+    addRow('Delivery Fee (7%):', `${sym}${delivery.toFixed(2)}`);
+
+    // Total line
+    y += 2;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(25, y, pageWidth - 25, y);
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Total Deducted:', 25, y);
+    doc.setTextColor(102, 126, 234);
+    doc.text(`${sym}${totalAmt.toFixed(2)} ${p.currency}`, 90, y);
+    y += 8;
+
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    addRow('Reference:', p.reference || 'N/A');
+
+    // Footer
+    y += 16;
+    doc.setDrawColor(102, 126, 234);
+    doc.line(20, y, pageWidth - 20, y);
+    y += 10;
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('This is a system-generated receipt from GlobalPay Portal.', pageWidth / 2, y, { align: 'center' });
+    doc.text('International Payment Transfer — Send money securely across borders.', pageWidth / 2, y + 5, { align: 'center' });
+
+    // Save
+    doc.save(`GlobalPay_Receipt_${p.id}.pdf`);
   };
 
   return (
