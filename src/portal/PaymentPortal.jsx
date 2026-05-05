@@ -265,6 +265,16 @@ const s = {
   badgeDeclined: { background: '#fee2e2', color: '#991b1b', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' },
   badgeContact:  { background: '#e0e7ff', color: '#3730a3', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' },
   emptyHistory:  { textAlign: 'center', color: '#aaa', padding: '30px', fontSize: '14px' },
+  downloadBtn: {
+    padding: '6px 12px',
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '12px',
+    fontWeight: '600',
+    cursor: 'pointer',
+  },
   idleOverlay: {
     position: 'fixed',
     inset: 0,
@@ -432,6 +442,66 @@ const PaymentPortal = () => {
     if (status === 'Declined')   return <span style={s.badgeDeclined}>❌ Declined</span>;
     if (status === 'Smart inContact') return <span style={s.badgeContact}>📞 Smart inContact</span>;
     return <span style={s.badgePending}>⏳ Pending Approval</span>;
+  };
+
+  const downloadReceipt = (p) => {
+    const curr = currencies.find((c) => c.code === p.currency);
+    const sym = curr ? curr.symbol : '';
+    const amt = parseFloat(p.amount);
+    const admin = parseFloat((amt * FEE_RATE).toFixed(2));
+    const delivery = parseFloat((amt * DELIVERY_RATE).toFixed(2));
+    const totalAmt = parseFloat((amt + admin + delivery).toFixed(2));
+
+    const receipt = `
+════════════════════════════════════════════
+       🌐 GLOBALPAY PORTAL - PAYMENT RECEIPT
+════════════════════════════════════════════
+
+Transaction ID:    ${p.id}
+Date:              ${new Date(p.date).toLocaleString()}
+Status:            ${p.status}
+
+────────────────────────────────────────────
+SENDER DETAILS
+────────────────────────────────────────────
+Name:              ${user.name}
+Email:             ${user.email}
+
+────────────────────────────────────────────
+RECIPIENT DETAILS
+────────────────────────────────────────────
+Name:              ${p.recipientName}
+Account Number:    ${p.recipientAccount}
+Bank:              ${p.recipientBank}
+Swift Code:        ${p.swiftCode}
+
+────────────────────────────────────────────
+PAYMENT BREAKDOWN
+────────────────────────────────────────────
+Amount:            ${sym}${amt.toFixed(2)} ${p.currency}
+Admin Fee (1.5%):  ${sym}${admin.toFixed(2)}
+Delivery Fee (7%): ${sym}${delivery.toFixed(2)}
+                   ─────────────────
+Total Deducted:    ${sym}${totalAmt.toFixed(2)} ${p.currency}
+
+Reference:         ${p.reference || 'N/A'}
+
+════════════════════════════════════════════
+This is a system-generated receipt.
+GlobalPay Portal - International Payment Transfer
+Send money securely across borders.
+════════════════════════════════════════════
+`.trim();
+
+    const blob = new Blob([receipt], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `GlobalPay_Receipt_${p.id}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -611,6 +681,7 @@ const PaymentPortal = () => {
                 <th style={s.th}>Amount</th>
                 <th style={s.th}>Reference</th>
                 <th style={s.th}>Status</th>
+                <th style={s.th}>Receipt</th>
               </tr>
             </thead>
             <tbody>
@@ -622,6 +693,11 @@ const PaymentPortal = () => {
                   <td style={s.td}>{p.currency} {parseFloat(p.amount).toFixed(2)}</td>
                   <td style={s.td}>{p.reference || '—'}</td>
                   <td style={s.td}>{statusBadge(p.status)}</td>
+                  <td style={s.td}>
+                    <button style={s.downloadBtn} onClick={() => downloadReceipt(p)}>
+                      📥 Download
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

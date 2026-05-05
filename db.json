@@ -17,6 +17,48 @@
       "email": "nyambosed@gmail.com",
       "password": "$2b$10$CIqLGnvbEvo47xtqJdd6P.reNMoCoATiOxJFlhpMEiThv4LmJAH8e",
       "id": "uazmlh_ILz0"
+    },
+    {
+      "name": "Justin",
+      "email": "JustinF@gmail.com",
+      "password": "$2b$10$WI1x9eJUIodSz4obaaVuhePZaBdui/Gp/Q0jZF/7mvn0fFDAqPnjW",
+      "id": "9KemCoxU1wo"
+    },
+    {
+      "name": "Sakhile",
+      "email": "Sakhile@Yahoo.com",
+      "password": "$2b$10$NBemXYhtKChvd4ausf2BJO3uvPuMGua.JMxg2e3TWC7Xnl//ua9C.",
+      "id": "J-4rGDHVHmo"
+    },
+    {
+      "name": "Tau",
+      "email": "Mzamo@gmail.com",
+      "password": "$2b$10$iQvTQsRVJvcPP763LWXeFeDu/A2AGEf2qxozr8dCPyOTSNCdR0J2i",
+      "id": "eZTjVdl06ek"
+    },
+    {
+      "name": "Kukhanya",
+      "email": "Kukhanya@gmail.com",
+      "password": "$2b$10$L0Ygpk3DeMgBhxO7aLcWqer0wi5CrSHyjj2AGdWLeNz78wYfXHmCe",
+      "id": "uuYPpAgXZ3c"
+    },
+    {
+      "name": "Andrew",
+      "email": "AndrewM@gmail.com",
+      "password": "$2b$10$NbQQt67BrWx9iAecw19zueVno/C4hrxDLaw25.YIF5Uu7dyaKXR4K",
+      "id": "rz6eB_Bb8_o"
+    },
+    {
+      "name": "MillenniumM",
+      "email": "MillenniumM@gmail.com",
+      "password": "$2b$10$niijOR/flsxmuz7UolTCu.5yLYDJfHdKqOJ.YU9aHlilw8j1yZlqG",
+      "id": "tPfBzooMV78"
+    },
+    {
+      "name": "MillenniumM",
+      "email": "MillenniumM1@gmail.com",
+      "password": "$2b$10$bRvY5MwI0HcEArbFjy.KzOey81/aZ9vWcUjJgZWu1AgwfxwADzF5W",
+      "id": "jsHoIiXep7E"
     }
   ],
   "payments": [
@@ -58,6 +100,58 @@
       "status": "Pending Approval",
       "date": "2026-05-04T13:15:13.589Z",
       "id": "DrYeu-p2zww"
+    },
+    {
+      "userId": "J-4rGDHVHmo",
+      "recipientName": "Credobooks",
+      "recipientAccount": "62785495845",
+      "recipientBank": "FNB",
+      "swiftCode": "FIRNZAJJ",
+      "amount": 50000,
+      "currency": "ZAR",
+      "reference": "INV0990",
+      "status": "Pending Approval",
+      "date": "2026-05-04T16:12:06.364Z",
+      "id": "JqnkIzYKJAU"
+    },
+    {
+      "userId": "uuYPpAgXZ3c",
+      "recipientName": "Rosebank College",
+      "recipientAccount": "68520415852",
+      "recipientBank": "FNB",
+      "swiftCode": "FIRNZAJJ",
+      "amount": 20000,
+      "currency": "ZAR",
+      "reference": "INV0990",
+      "status": "Pending Approval",
+      "date": "2026-05-04T16:37:30.222Z",
+      "id": "9PWCkLsF-f0"
+    },
+    {
+      "userId": "rz6eB_Bb8_o",
+      "recipientName": "Rosebank College",
+      "recipientAccount": "62785485965",
+      "recipientBank": "FNB",
+      "swiftCode": "FIRNZAJJ",
+      "amount": 20000,
+      "currency": "ZAR",
+      "reference": "INV0990",
+      "status": "Pending Approval",
+      "date": "2026-05-04T16:56:45.655Z",
+      "id": "ZupXjoNh3qs"
+    },
+    {
+      "userId": "jsHoIiXep7E",
+      "recipientName": "Credobooks",
+      "recipientAccount": "62854585854",
+      "recipientBank": "FNB",
+      "swiftCode": "FIRNZAJJ",
+      "amount": 20000,
+      "currency": "ZAR",
+      "reference": "INV0990",
+      "status": "Pending Approval",
+      "date": "2026-05-04T17:28:52.990Z",
+      "id": "YstFxbXqcmo"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
