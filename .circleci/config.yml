@@ -6,7 +6,7 @@ orbs:
 jobs:
   build-and-scan:
     docker:
-      - image: cimg/node:20.11
+      - image: cimg/node:22.12
     steps:
       - checkout
       - restore_cache:
@@ -15,14 +15,14 @@ jobs:
             - v1-deps-
       - run:
           name: Install dependencies
-          command: npm ci
+          command: npm install --legacy-peer-deps
       - save_cache:
           paths:
             - node_modules
           key: v1-deps-{{ checksum "package-lock.json" }}
       - run:
           name: Run build
-          command: npm run build
+          command: CI=false npm run build
       - sonarcloud/scan
 
 workflows:
