@@ -4,6 +4,8 @@ import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import { validatePaymentForm, sanitise } from '../utils/validation';
 import useIdleTimer from '../hooks/useIdleTimer';
+import CreateUser from '../components/CreateUser';
+import ChangePassword from '../components/ChangePassword';
 
 const currencies = [
   { code: 'ZAR', label: 'South African Rand', symbol: 'R', flag: '🇿🇦' },
@@ -387,6 +389,7 @@ const PaymentPortal = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = location.state?.user || { name: 'Customer' };
+  const [showChangePassword, setShowChangePassword] = useState(user.mustChangePassword || false);
 
   const [form, setForm] = useState({
     recipientName: '',
@@ -839,6 +842,13 @@ const PaymentPortal = () => {
           </table>
         )}
       </div>
+
+      <CreateUser />
+
+      {showChangePassword && (
+        <ChangePassword user={user} onComplete={() => setShowChangePassword(false)} />
+      )}
+
       {showWarning && (
         <div style={s.idleOverlay}>
           <div style={s.idleCard}>
