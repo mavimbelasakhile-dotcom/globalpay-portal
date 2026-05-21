@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import useIdleTimer from '../hooks/useIdleTimer';
+import CreateUser from '../components/CreateUser';
 
 const s = {
   page: {
@@ -291,6 +292,8 @@ const AdminDashboard = () => {
           </table>
         )}
       </div>
+
+      <CreateUser />
 
       {showWarning && (
         <div style={s.idleOverlay}>

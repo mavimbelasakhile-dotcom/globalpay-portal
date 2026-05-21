@@ -4,7 +4,6 @@ import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import { validatePaymentForm, sanitise } from '../utils/validation';
 import useIdleTimer from '../hooks/useIdleTimer';
-import CreateUser from '../components/CreateUser';
 import ChangePassword from '../components/ChangePassword';
 
 const currencies = [
@@ -842,8 +841,6 @@ const PaymentPortal = () => {
           </table>
         )}
       </div>
-
-      <CreateUser />
 
       {showChangePassword && (
         <ChangePassword user={user} onComplete={() => setShowChangePassword(false)} />
