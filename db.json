@@ -26,7 +26,7 @@
       "currency": "ZAR",
       "paymentMethod": "apple_pay",
       "reference": "trazfgjhntfg",
-      "status": "Pending Approval",
+      "status": "Successful",
       "date": "2026-05-21T18:05:56.132Z",
       "id": "U42V3y1bkz8"
     },
@@ -40,9 +40,23 @@
       "currency": "ZAR",
       "paymentMethod": "bank_transfer",
       "reference": "JK8521478596547",
-      "status": "Pending Approval",
+      "status": "Declined",
       "date": "2026-05-21T18:06:44.685Z",
       "id": "zuK_bieyxsk"
+    },
+    {
+      "userId": "emp001",
+      "recipientName": "Cobus Burgers",
+      "recipientAccount": "8925874758",
+      "recipientBank": "Absa",
+      "swiftCode": "ABSAZAJJ",
+      "amount": 80000,
+      "currency": "ZAR",
+      "paymentMethod": "bank_transfer",
+      "reference": "MAN000000000000000000000000000",
+      "status": "Successful",
+      "date": "2026-05-21T18:07:35.468Z",
+      "id": "oTqW0LxM4RU"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
