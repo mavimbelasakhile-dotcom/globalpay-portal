@@ -4,14 +4,46 @@
       "id": "emp001",
       "name": "Sakhile Mavimbela",
       "email": "sakhile@globalpay.co.za",
-      "password": "$2b$10$aAn8U4aLTrC4p4G5ZzbaJ./FDzQUhAZrlA47u0bejHE2UErTr4uSm"
+      "password": "$2b$10$aAn8U4aLTrC4p4G5ZzbaJ./FDzQUhAZrlA47u0bejHE2UErTr4uSm",
+      "role": "employee"
     },
     {
-      "id": "emp002",
+      "id": "admin001",
       "name": "Admin User",
       "email": "admin@globalpay.co.za",
-      "password": "$2b$10$I7SuE6kAUgKHaKiQSQuHeu4EZvKWIuLX9YN6xDhY3eLKUJJryhC/q"
+      "password": "$2b$10$2C5peUq94mgLDIhpoZF4H.xn/TEsfHn8aXrqLNr.OETdoCYnClc3y",
+      "role": "admin"
     }
   ],
-  "payments": []
+  "payments": [
+    {
+      "userId": "emp001",
+      "recipientName": "Rosebank College",
+      "recipientAccount": "1398405894",
+      "recipientBank": "Capitec",
+      "swiftCode": "CABLZAJJ",
+      "amount": 18500,
+      "currency": "ZAR",
+      "paymentMethod": "apple_pay",
+      "reference": "trazfgjhntfg",
+      "status": "Pending Approval",
+      "date": "2026-05-21T18:05:56.132Z",
+      "id": "U42V3y1bkz8"
+    },
+    {
+      "userId": "emp001",
+      "recipientName": "Johannes Khumalo",
+      "recipientAccount": "627475851986",
+      "recipientBank": "Nedbank",
+      "swiftCode": "NEDSZAJJ",
+      "amount": 25000,
+      "currency": "ZAR",
+      "paymentMethod": "bank_transfer",
+      "reference": "JK8521478596547",
+      "status": "Pending Approval",
+      "date": "2026-05-21T18:06:44.685Z",
+      "id": "zuK_bieyxsk"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

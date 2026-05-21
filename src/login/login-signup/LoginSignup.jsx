@@ -114,7 +114,11 @@ const LoginSignup = () => {
     try {
       const user = await loginUser(formData);
       setFailedAttempts(0);
-      navigate('/portal', { state: { user } });
+      if (user.role === 'admin') {
+        navigate('/admin', { state: { user } });
+      } else {
+        navigate('/portal', { state: { user } });
+      }
     } catch (err) {
       const newAttempts = failedAttempts + 1;
       setFailedAttempts(newAttempts);
