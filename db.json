@@ -65,6 +65,12 @@
       "email": "TM@gmail.com",
       "password": "$2b$10$LPWNtqq3PJASlKZ8wN3pYOkbaTkBedqajFhvjyVBoeUxY2orVczYO",
       "id": "jO45RcaJ8z0"
+    },
+    {
+      "name": "Aaron",
+      "email": "Aaron@gmail.com",
+      "password": "$2b$10$iP4q1ZVbAJz2fwOkMoW8TOfQJ5HD6cnLjPZkP.E5Aa0xs0bx0FDRm",
+      "id": "BqatuCDQ2FA"
     }
   ],
   "payments": [

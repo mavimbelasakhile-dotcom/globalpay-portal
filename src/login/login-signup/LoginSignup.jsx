@@ -129,9 +129,9 @@ const LoginSignup = () => {
     try {
       if (action === 'Sign Up') {
         await registerUser(formData);
-        navigate('/', {
-          state: { mode: 'Login', successMsg: '✅ Account created successfully! Please log in.' },
-        });
+        setFormData({ name: '', email: '', password: '' });
+        setAction('Login');
+        setToastMsg('✅ Account created successfully! Please log in.');
       } else {
         const user = await loginUser(formData);
         setFailedAttempts(0);
