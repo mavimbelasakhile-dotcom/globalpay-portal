@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import bcrypt from 'bcryptjs';
 import { loginUser } from '../../api/auth';
-import { validateLoginForm } from '../../utils/validation';
+import { validateLoginForm, PATTERNS } from '../../utils/validation';
 import emailIcon from '../assets/email icon.webp';
 import passwordIcon from '../assets/password icon.webp';
+import personIcon from '../assets/person icon.webp';
 
 const styles = {
   page: {
@@ -37,8 +40,12 @@ const styles = {
   input: { border: 'none', background: 'transparent', outline: 'none', fontSize: '14px', color: '#2d2d2d', width: '100%' },
   errorText: { fontSize: '12px', color: '#e53e3e', paddingLeft: '4px' },
   apiError: { background: '#fff5f5', border: '1px solid #fc8181', borderRadius: '10px', padding: '10px 14px', fontSize: '13px', color: '#c53030', marginBottom: '14px', textAlign: 'center' },
+  successMsg: { background: '#f0fff4', border: '1px solid #68d391', borderRadius: '10px', padding: '10px 14px', fontSize: '13px', color: '#276749', marginBottom: '14px', textAlign: 'center' },
   submitBtn: { width: '100%', padding: '14px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', letterSpacing: '0.5px', marginBottom: '14px' },
   submitBtnDisabled: { width: '100%', padding: '14px', background: '#ccc', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'not-allowed', letterSpacing: '0.5px', marginBottom: '14px' },
+  forgotPassword: { textAlign: 'right', fontSize: '13px', color: '#888', marginBottom: '20px', cursor: 'pointer' },
+  forgotSpan: { color: '#667eea', fontWeight: '600', cursor: 'pointer' },
+  backLink: { textAlign: 'center', fontSize: '13px', color: '#667eea', fontWeight: '600', cursor: 'pointer', marginTop: '10px' },
   notice: { textAlign: 'center', fontSize: '12px', color: '#aaa', marginTop: '4px' },
 };
 
@@ -48,9 +55,15 @@ const LOCKOUT_SECONDS = 30;
 const LoginSignup = () => {
   const navigate = useNavigate();
 
+  const [view, setView] = useState('login');
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [forgotData, setForgotData] = useState({ name: '', email: '' });
+  const [resetUser, setResetUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockedOut, setLockedOut] = useState(false);
@@ -59,12 +72,21 @@ const LoginSignup = () => {
   const fieldFilters = {
     email:    (v) => v.replace(/[^a-zA-Z0-9._%+\-@]/g, '').slice(0, 254),
     password: (v) => v.replace(/[^\x20-\x7E]/g, '').slice(0, 128),
+    name:     (v) => v.replace(/[^a-zA-Z\s'\-]/g, '').slice(0, 60),
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     const filtered = fieldFilters[name] ? fieldFilters[name](value) : value;
     setFormData({ ...formData, [name]: filtered });
+    setErrors({ ...errors, [name]: '' });
+    setApiError('');
+  };
+
+  const handleForgotChange = (e) => {
+    const { name, value } = e.target;
+    const filtered = fieldFilters[name] ? fieldFilters[name](value) : value;
+    setForgotData({ ...forgotData, [name]: filtered });
     setErrors({ ...errors, [name]: '' });
     setApiError('');
   };
@@ -81,7 +103,7 @@ const LoginSignup = () => {
     return () => clearTimeout(timer);
   }, [lockedOut, countdown]);
 
-  const handleSubmit = async () => {
+  const handleLogin = async () => {
     if (lockedOut) return;
     const validationErrors = validateLoginForm(formData);
     if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
@@ -108,6 +130,73 @@ const LoginSignup = () => {
     }
   };
 
+  const handleForgotSubmit = async () => {
+    const newErrors = {};
+    if (!forgotData.name.trim() || !PATTERNS.name.test(forgotData.name.trim())) {
+      newErrors.name = 'Enter your full name';
+    }
+    if (!forgotData.email.trim() || !PATTERNS.email.test(forgotData.email.trim())) {
+      newErrors.email = 'Enter a valid email address';
+    }
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
+
+    setLoading(true);
+    setApiError('');
+
+    try {
+      const res = await axios.get(`http://localhost:3001/users?email=${encodeURIComponent(forgotData.email.trim())}`);
+      if (res.data.length === 0 || res.data[0].name.toLowerCase() !== forgotData.name.trim().toLowerCase()) {
+        setApiError('No account found matching that name and email.');
+      } else {
+        setResetUser(res.data[0]);
+        setView('resetPassword');
+        setApiError('');
+      }
+    } catch (e) {
+      setApiError('Something went wrong. Try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    const newErrors = {};
+    if (!newPassword || !PATTERNS.password.test(newPassword)) {
+      newErrors.newPassword = 'Password must be 6–128 printable characters';
+    }
+    if (newPassword !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
+
+    setLoading(true);
+    try {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await axios.patch(`http://localhost:3001/users/${resetUser.id}`, {
+        password: hashedPassword,
+        mustChangePassword: false,
+      });
+      setSuccessMsg('Password updated successfully! Please log in.');
+      setView('login');
+      setFormData({ email: resetUser.email, password: '' });
+      setResetUser(null);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (e) {
+      setApiError('Failed to reset password. Try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const goBack = () => {
+    setView('login');
+    setErrors({});
+    setApiError('');
+    setSuccessMsg('');
+    setForgotData({ name: '', email: '' });
+  };
+
   return (
     <div style={styles.page}>
       <div style={styles.brand}>
@@ -117,40 +206,139 @@ const LoginSignup = () => {
       </div>
 
       <div style={styles.container}>
-        <div style={styles.header}>
-          <div style={styles.headerText}>Employee Login</div>
-          <div style={styles.underline}></div>
-        </div>
 
-        {apiError && <div style={styles.apiError}>{apiError}</div>}
+        {view === 'login' && (
+          <>
+            <div style={styles.header}>
+              <div style={styles.headerText}>Employee Login</div>
+              <div style={styles.underline}></div>
+            </div>
 
-        <div style={styles.inputGroup}>
-          <div style={errors.email ? styles.inputBoxError : styles.inputBox}>
-            <img src={emailIcon} alt="email" style={styles.icon} />
-            <input style={styles.input} type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} maxLength={254} />
-          </div>
-          {errors.email && <span style={styles.errorText}>{errors.email}</span>}
-        </div>
+            {apiError && <div style={styles.apiError}>{apiError}</div>}
+            {successMsg && <div style={styles.successMsg}>{successMsg}</div>}
 
-        <div style={styles.inputGroup}>
-          <div style={errors.password ? styles.inputBoxError : styles.inputBox}>
-            <img src={passwordIcon} alt="password" style={styles.icon} />
-            <input style={styles.input} type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} maxLength={128} />
-          </div>
-          {errors.password && <span style={styles.errorText}>{errors.password}</span>}
-        </div>
+            <div style={styles.inputGroup}>
+              <div style={errors.email ? styles.inputBoxError : styles.inputBox}>
+                <img src={emailIcon} alt="email" style={styles.icon} />
+                <input style={styles.input} type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} maxLength={254} />
+              </div>
+              {errors.email && <span style={styles.errorText}>{errors.email}</span>}
+            </div>
 
-        <button
-          style={loading || lockedOut ? styles.submitBtnDisabled : styles.submitBtn}
-          onClick={handleSubmit}
-          disabled={loading || lockedOut}
-        >
-          {lockedOut ? `Locked — wait ${countdown}s` : loading ? 'Please wait...' : 'Login'}
-        </button>
+            <div style={styles.inputGroup}>
+              <div style={errors.password ? styles.inputBoxError : styles.inputBox}>
+                <img src={passwordIcon} alt="password" style={styles.icon} />
+                <input style={styles.input} type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} maxLength={128} />
+              </div>
+              {errors.password && <span style={styles.errorText}>{errors.password}</span>}
+            </div>
 
-        <div style={styles.notice}>
-          Employee accounts are pre-configured by the system administrator.
-        </div>
+            <div style={styles.forgotPassword}>
+              <span style={styles.forgotSpan} onClick={() => { setView('forgot'); setErrors({}); setApiError(''); setSuccessMsg(''); }}>Forgot Password?</span>
+            </div>
+
+            <button
+              style={loading || lockedOut ? styles.submitBtnDisabled : styles.submitBtn}
+              onClick={handleLogin}
+              disabled={loading || lockedOut}
+            >
+              {lockedOut ? `Locked — wait ${countdown}s` : loading ? 'Please wait...' : 'Login'}
+            </button>
+
+            <div style={styles.notice}>
+              Employee accounts are pre-configured by the system administrator.
+            </div>
+          </>
+        )}
+
+        {view === 'forgot' && (
+          <>
+            <div style={styles.header}>
+              <div style={styles.headerText}>Reset Password</div>
+              <div style={styles.underline}></div>
+            </div>
+
+            {apiError && <div style={styles.apiError}>{apiError}</div>}
+
+            <div style={styles.inputGroup}>
+              <div style={errors.name ? styles.inputBoxError : styles.inputBox}>
+                <img src={personIcon} alt="person" style={styles.icon} />
+                <input style={styles.input} type="text" name="name" placeholder="Your Full Name" value={forgotData.name} onChange={handleForgotChange} maxLength={60} />
+              </div>
+              {errors.name && <span style={styles.errorText}>{errors.name}</span>}
+            </div>
+
+            <div style={styles.inputGroup}>
+              <div style={errors.email ? styles.inputBoxError : styles.inputBox}>
+                <img src={emailIcon} alt="email" style={styles.icon} />
+                <input style={styles.input} type="email" name="email" placeholder="Email Address" value={forgotData.email} onChange={handleForgotChange} maxLength={254} />
+              </div>
+              {errors.email && <span style={styles.errorText}>{errors.email}</span>}
+            </div>
+
+            <button
+              style={loading ? styles.submitBtnDisabled : styles.submitBtn}
+              onClick={handleForgotSubmit}
+              disabled={loading}
+            >
+              {loading ? 'Verifying...' : 'Continue'}
+            </button>
+
+            <div style={styles.backLink} onClick={goBack}>← Back to Login</div>
+          </>
+        )}
+
+        {view === 'resetPassword' && (
+          <>
+            <div style={styles.header}>
+              <div style={styles.headerText}>Set New Password</div>
+              <div style={styles.underline}></div>
+            </div>
+
+            {apiError && <div style={styles.apiError}>{apiError}</div>}
+
+            <div style={styles.inputGroup}>
+              <div style={errors.newPassword ? styles.inputBoxError : styles.inputBox}>
+                <img src={passwordIcon} alt="password" style={styles.icon} />
+                <input
+                  style={styles.input}
+                  type="password"
+                  placeholder="New Password (min 6 chars)"
+                  value={newPassword}
+                  onChange={(e) => { setNewPassword(e.target.value.replace(/[^\x20-\x7E]/g, '').slice(0, 128)); setErrors({ ...errors, newPassword: '' }); }}
+                  maxLength={128}
+                />
+              </div>
+              {errors.newPassword && <span style={styles.errorText}>{errors.newPassword}</span>}
+            </div>
+
+            <div style={styles.inputGroup}>
+              <div style={errors.confirmPassword ? styles.inputBoxError : styles.inputBox}>
+                <img src={passwordIcon} alt="password" style={styles.icon} />
+                <input
+                  style={styles.input}
+                  type="password"
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => { setConfirmPassword(e.target.value.replace(/[^\x20-\x7E]/g, '').slice(0, 128)); setErrors({ ...errors, confirmPassword: '' }); }}
+                  maxLength={128}
+                />
+              </div>
+              {errors.confirmPassword && <span style={styles.errorText}>{errors.confirmPassword}</span>}
+            </div>
+
+            <button
+              style={loading ? styles.submitBtnDisabled : styles.submitBtn}
+              onClick={handleResetPassword}
+              disabled={loading}
+            >
+              {loading ? 'Updating...' : 'Reset Password'}
+            </button>
+
+            <div style={styles.backLink} onClick={goBack}>← Back to Login</div>
+          </>
+        )}
+
       </div>
     </div>
   );
