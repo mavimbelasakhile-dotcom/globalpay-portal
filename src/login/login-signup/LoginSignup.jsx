@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { registerUser, loginUser } from '../../api/auth';
-import { validateLoginForm, validateRegisterForm } from '../../utils/validation';
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../../api/auth';
+import { validateLoginForm } from '../../utils/validation';
 import emailIcon from '../assets/email icon.webp';
 import passwordIcon from '../assets/password icon.webp';
-import personIcon from '../assets/person icon.webp';
 
 const styles = {
   page: {
@@ -38,31 +37,9 @@ const styles = {
   input: { border: 'none', background: 'transparent', outline: 'none', fontSize: '14px', color: '#2d2d2d', width: '100%' },
   errorText: { fontSize: '12px', color: '#e53e3e', paddingLeft: '4px' },
   apiError: { background: '#fff5f5', border: '1px solid #fc8181', borderRadius: '10px', padding: '10px 14px', fontSize: '13px', color: '#c53030', marginBottom: '14px', textAlign: 'center' },
-  successMsg: { background: '#f0fff4', border: '1px solid #68d391', borderRadius: '10px', padding: '10px 14px', fontSize: '13px', color: '#276749', marginBottom: '14px', textAlign: 'center' },
-  forgotPassword: { textAlign: 'right', fontSize: '13px', color: '#888', marginBottom: '20px', cursor: 'pointer' },
-  forgotSpan: { color: '#667eea', fontWeight: '600', cursor: 'pointer' },
   submitBtn: { width: '100%', padding: '14px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', letterSpacing: '0.5px', marginBottom: '14px' },
   submitBtnDisabled: { width: '100%', padding: '14px', background: '#ccc', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'not-allowed', letterSpacing: '0.5px', marginBottom: '14px' },
-  switchRow: { textAlign: 'center', fontSize: '13px', color: '#888' },
-  switchLink: { color: '#667eea', fontWeight: '700', cursor: 'pointer', marginLeft: '4px' },
-  toaster: {
-    position: 'fixed',
-    top: '24px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    background: '#276749',
-    color: '#fff',
-    padding: '14px 28px',
-    borderRadius: '12px',
-    fontSize: '14px',
-    fontWeight: '600',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-    zIndex: 9999,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    animation: 'fadeIn 0.3s ease',
-  },
+  notice: { textAlign: 'center', fontSize: '12px', color: '#aaa', marginTop: '4px' },
 };
 
 const MAX_ATTEMPTS = 3;
@@ -70,27 +47,16 @@ const LOCKOUT_SECONDS = 30;
 
 const LoginSignup = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [action, setAction] = useState(location.state?.mode || 'Login');
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [toastMsg, setToastMsg] = useState(location.state?.successMsg || '');
   const [loading, setLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockedOut, setLockedOut] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
-  useEffect(() => {
-    if (!toastMsg) return;
-    const t = setTimeout(() => setToastMsg(''), 4000);
-    return () => clearTimeout(t);
-  }, [toastMsg]);
-
   const fieldFilters = {
-    name:     (v) => v.replace(/[^a-zA-Z\s'\-]/g, '').slice(0, 60),
     email:    (v) => v.replace(/[^a-zA-Z0-9._%+\-@]/g, '').slice(0, 254),
     password: (v) => v.replace(/[^\x20-\x7E]/g, '').slice(0, 128),
   };
@@ -115,64 +81,35 @@ const LoginSignup = () => {
     return () => clearTimeout(timer);
   }, [lockedOut, countdown]);
 
-  const validate = () =>
-    action === 'Sign Up' ? validateRegisterForm(formData) : validateLoginForm(formData);
-
   const handleSubmit = async () => {
     if (lockedOut) return;
-    const validationErrors = validate();
+    const validationErrors = validateLoginForm(formData);
     if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
 
     setLoading(true);
     setApiError('');
 
     try {
-      if (action === 'Sign Up') {
-        await registerUser(formData);
-        setFormData({ name: '', email: '', password: '' });
-        setAction('Login');
-        setToastMsg('✅ Account created successfully! Please log in.');
-      } else {
-        const user = await loginUser(formData);
-        setFailedAttempts(0);
-        navigate('/portal', { state: { user } });
-      }
+      const user = await loginUser(formData);
+      setFailedAttempts(0);
+      navigate('/portal', { state: { user } });
     } catch (err) {
-      if (action === 'Login') {
-        const newAttempts = failedAttempts + 1;
-        setFailedAttempts(newAttempts);
-        if (newAttempts >= MAX_ATTEMPTS) {
-          setLockedOut(true);
-          setCountdown(LOCKOUT_SECONDS);
-          setApiError(`Too many failed attempts. Login disabled for ${LOCKOUT_SECONDS} seconds.`);
-        } else {
-          setApiError(`${err.message || 'Invalid credentials.'} — ${MAX_ATTEMPTS - newAttempts} attempt(s) remaining.`);
-        }
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
+      if (newAttempts >= MAX_ATTEMPTS) {
+        setLockedOut(true);
+        setCountdown(LOCKOUT_SECONDS);
+        setApiError(`Too many failed attempts. Login disabled for ${LOCKOUT_SECONDS} seconds.`);
       } else {
-        setApiError(err.message || 'Something went wrong. Try again.');
+        setApiError(`${err.message || 'Invalid credentials.'} — ${MAX_ATTEMPTS - newAttempts} attempt(s) remaining.`);
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const switchTo = (mode) => {
-    setAction(mode);
-    setErrors({});
-    setApiError('');
-    setSuccessMsg('');
-    setFormData({ name: '', email: '', password: '' });
-  };
-
   return (
     <div style={styles.page}>
-
-      {toastMsg && (
-        <div style={styles.toaster}>
-          {toastMsg}
-        </div>
-      )}
-
       <div style={styles.brand}>
         <div style={styles.brandTitle}>🌐 GlobalPay Portal</div>
         <div style={styles.brandSlogan}>International Payment Transfer</div>
@@ -181,22 +118,11 @@ const LoginSignup = () => {
 
       <div style={styles.container}>
         <div style={styles.header}>
-          <div style={styles.headerText}>{action === 'Sign Up' ? 'Create Account' : 'Welcome Back'}</div>
+          <div style={styles.headerText}>Employee Login</div>
           <div style={styles.underline}></div>
         </div>
 
         {apiError && <div style={styles.apiError}>{apiError}</div>}
-        {successMsg && <div style={styles.successMsg}>{successMsg}</div>}
-
-        {action === 'Sign Up' && (
-          <div style={styles.inputGroup}>
-            <div style={errors.name ? styles.inputBoxError : styles.inputBox}>
-              <img src={personIcon} alt="person" style={styles.icon} />
-              <input style={styles.input} type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} maxLength={60} />
-            </div>
-            {errors.name && <span style={styles.errorText}>{errors.name}</span>}
-          </div>
-        )}
 
         <div style={styles.inputGroup}>
           <div style={errors.email ? styles.inputBoxError : styles.inputBox}>
@@ -214,31 +140,17 @@ const LoginSignup = () => {
           {errors.password && <span style={styles.errorText}>{errors.password}</span>}
         </div>
 
-        {action === 'Login' && (
-          <div style={styles.forgotPassword}>
-            Forgot Password? <span style={styles.forgotSpan}>Click Here</span>
-          </div>
-        )}
-
         <button
           style={loading || lockedOut ? styles.submitBtnDisabled : styles.submitBtn}
           onClick={handleSubmit}
           disabled={loading || lockedOut}
         >
-          {lockedOut ? `Locked — wait ${countdown}s` : loading ? 'Please wait...' : action === 'Sign Up' ? 'Create Account' : 'Login'}
+          {lockedOut ? `Locked — wait ${countdown}s` : loading ? 'Please wait...' : 'Login'}
         </button>
 
-        {action === 'Login' ? (
-          <div style={styles.switchRow}>
-            Don't have an account?
-            <span style={styles.switchLink} onClick={() => switchTo('Sign Up')}>Sign Up</span>
-          </div>
-        ) : (
-          <div style={styles.switchRow}>
-            Already have an account?
-            <span style={styles.switchLink} onClick={() => switchTo('Login')}>Login</span>
-          </div>
-        )}
+        <div style={styles.notice}>
+          Employee accounts are pre-configured by the system administrator.
+        </div>
       </div>
     </div>
   );
