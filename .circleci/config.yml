@@ -1,0 +1,32 @@
+version: 2.1
+
+orbs:
+  sonarcloud: sonarsource/sonarcloud@2.0.0
+
+jobs:
+  build-and-scan:
+    docker:
+      - image: cimg/node:20.11
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-deps-{{ checksum "package-lock.json" }}
+            - v1-deps-
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-deps-{{ checksum "package-lock.json" }}
+      - run:
+          name: Run build
+          command: npm run build
+      - sonarcloud/scan
+
+workflows:
+  main:
+    jobs:
+      - build-and-scan:
+          context: SonarCloud

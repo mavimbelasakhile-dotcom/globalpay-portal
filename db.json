@@ -178,6 +178,20 @@
       "status": "Pending Approval",
       "date": "2026-05-05T12:55:00.164Z",
       "id": "tB-DNZ7CrLg"
+    },
+    {
+      "userId": "BqatuCDQ2FA",
+      "recipientName": "Raseobi",
+      "recipientAccount": "62745851986",
+      "recipientBank": "FNB",
+      "swiftCode": "FIRNZAJJ",
+      "amount": 20000,
+      "currency": "ZAR",
+      "paymentMethod": "bank_transfer",
+      "reference": "ST10506152",
+      "status": "Pending Approval",
+      "date": "2026-05-21T16:58:18.049Z",
+      "id": "AUOae5VbxPI"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
