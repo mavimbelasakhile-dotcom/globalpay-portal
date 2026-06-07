@@ -27,6 +27,14 @@
       "password": "$2b$10$WANwuh50VYd4sEIOpTumc.DXS/Xew/lYmjzybnbZCtKn/P8J37UiO",
       "mustChangePassword": false,
       "id": "3l8GjIjokp8"
+    },
+    {
+      "name": "SAM Mkhwanazi",
+      "email": "SAMM@Globalpay.com",
+      "password": "$2b$10$x7thcAEbAZ4EmIoLK2YzX.sCCpw.VuQyRKuxi4PQswODSX2nijHlK",
+      "mustChangePassword": false,
+      "id": "P6-iTcDw8Js",
+      "isLoggedIn": true
     }
   ],
   "payments": [
@@ -85,6 +93,20 @@
       "status": "Successful",
       "date": "2026-05-21T18:18:51.983Z",
       "id": "5SIvFYfLhuE"
+    },
+    {
+      "userId": "P6-iTcDw8Js",
+      "recipientName": "Credobooks",
+      "recipientAccount": "12785968478",
+      "recipientBank": "Investec",
+      "swiftCode": "IVESZAJJ",
+      "amount": 4500,
+      "currency": "ZAR",
+      "paymentMethod": "bank_transfer",
+      "reference": "SakhileST10506152",
+      "status": "Successful",
+      "date": "2026-06-07T19:58:44.086Z",
+      "id": "veY7xtsLOZA"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

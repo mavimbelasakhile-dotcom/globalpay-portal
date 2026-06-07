@@ -93,7 +93,10 @@ const AdminDashboard = () => {
   const [payments, setPayments] = useState([]);
   const [users, setUsers] = useState([]);
 
-  const handleLogout = () => navigate('/');
+  const handleLogout = async () => {
+    try { await axios.patch(`http://localhost:3001/users/${user.id}`, { isLoggedIn: false }); } catch (e) {}
+    navigate('/');
+  };
   const { showWarning, countdown, continueSession } = useIdleTimer(handleLogout);
 
   useEffect(() => {

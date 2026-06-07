@@ -114,6 +114,16 @@ const LoginSignup = () => {
     try {
       const user = await loginUser(formData);
       setFailedAttempts(0);
+
+      const sessionCheck = await axios.get(`http://localhost:3001/users/${user.id}`);
+      if (sessionCheck.data.isLoggedIn) {
+        setApiError('This account is already logged in from another session.');
+        setLoading(false);
+        return;
+      }
+
+      await axios.patch(`http://localhost:3001/users/${user.id}`, { isLoggedIn: true });
+
       if (user.role === 'admin') {
         navigate('/admin', { state: { user } });
       } else {

@@ -412,6 +412,12 @@ const PaymentPortal = () => {
         .then((res) => setPayments(res.data))
         .catch(() => {});
     }
+
+    const handleBeforeUnload = () => {
+      navigator.sendBeacon(`http://localhost:3001/users/${user.id}`, JSON.stringify({ isLoggedIn: false }));
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [user.id]);
 
   const selectedCurrency = currencies.find((c) => c.code === form.currency);
@@ -484,7 +490,10 @@ const PaymentPortal = () => {
     }
   };
 
-  const handleLogout = () => navigate('/');
+  const handleLogout = async () => {
+    try { await axios.patch(`http://localhost:3001/users/${user.id}`, { isLoggedIn: false }); } catch (e) {}
+    navigate('/');
+  };
 
   const { showWarning, countdown, continueSession } = useIdleTimer(handleLogout);
 
