@@ -23,6 +23,7 @@
     "dev": "concurrently --kill-others \"npm:api\" \"npm:start\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:api": "npx jest src/__tests__/api.test.js --forceExit --detectOpenHandles",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -44,6 +45,8 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "jest": "^27.5.1",
+    "supertest": "^7.2.2"
   }
 }

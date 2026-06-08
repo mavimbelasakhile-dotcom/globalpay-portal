@@ -23,6 +23,16 @@ jobs:
       - run:
           name: Run build
           command: CI=false npm run build
+      - run:
+          name: Start API server
+          command: npm run api
+          background: true
+      - run:
+          name: Wait for API
+          command: sleep 3
+      - run:
+          name: Run API endpoint tests
+          command: npm run test:api
       - sonarcloud/scan
 
 workflows:

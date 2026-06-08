@@ -49,6 +49,21 @@ const styles = {
   notice: { textAlign: 'center', fontSize: '12px', color: '#aaa', marginTop: '4px' },
 };
 
+const getPasswordStrength = (pass) => {
+  if (!pass) return { label: '', color: '#e0e0e0', width: '0%' };
+  let score = 0;
+  if (pass.length >= 6) score++;
+  if (pass.length >= 10) score++;
+  if (/[A-Z]/.test(pass)) score++;
+  if (/[0-9]/.test(pass)) score++;
+  if (/[^a-zA-Z0-9]/.test(pass)) score++;
+  if (score <= 1) return { label: 'Weak', color: '#ef4444', width: '20%' };
+  if (score === 2) return { label: 'Fair', color: '#f59e0b', width: '40%' };
+  if (score === 3) return { label: 'Good', color: '#f59e0b', width: '60%' };
+  if (score === 4) return { label: 'Strong', color: '#10b981', width: '80%' };
+  return { label: 'Excellent', color: '#059669', width: '100%' };
+};
+
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_SECONDS = 30;
 
@@ -324,6 +339,14 @@ const LoginSignup = () => {
                 />
               </div>
               {errors.newPassword && <span style={styles.errorText}>{errors.newPassword}</span>}
+              {newPassword && (
+                <div style={{ marginTop: '6px' }}>
+                  <div style={{ height: '4px', background: '#e0e0e0', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: getPasswordStrength(newPassword).width, background: getPasswordStrength(newPassword).color, borderRadius: '4px', transition: 'all 0.3s' }}></div>
+                  </div>
+                  <span style={{ fontSize: '11px', color: getPasswordStrength(newPassword).color, fontWeight: '600' }}>{getPasswordStrength(newPassword).label}</span>
+                </div>
+              )}
             </div>
 
             <div style={styles.inputGroup}>
