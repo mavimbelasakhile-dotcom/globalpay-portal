@@ -399,12 +399,14 @@ const PaymentPortal = () => {
     currency: 'ZAR',
     paymentMethod: 'bank_transfer',
     reference: '',
+    scheduledDate: '',
   });
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [payments, setPayments] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (user.id) {
@@ -419,6 +421,35 @@ const PaymentPortal = () => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [user.id]);
+
+  useEffect(() => {
+    if (!user.id) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await axios.get(`http://localhost:3001/payments?userId=${user.id}`);
+        const updated = res.data;
+        updated.forEach((newP) => {
+          const oldP = payments.find(p => p.id === newP.id);
+          if (oldP && oldP.status === 'Pending Approval' && newP.status !== 'Pending Approval') {
+            const msg = newP.status === 'Successful'
+              ? `✅ Payment to ${newP.recipientName} has been approved!`
+              : `❌ Payment to ${newP.recipientName} has been declined.`;
+            setNotifications(prev => [...prev, { id: Date.now(), msg }]);
+          }
+        });
+        setPayments(updated);
+      } catch (e) {}
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [user.id, payments]);
+
+  useEffect(() => {
+    if (notifications.length === 0) return;
+    const timer = setTimeout(() => {
+      setNotifications(prev => prev.slice(1));
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [notifications]);
 
   const selectedCurrency = currencies.find((c) => c.code === form.currency);
   const amount = parseFloat(form.amount) || 0;
@@ -477,7 +508,8 @@ const PaymentPortal = () => {
         currency: form.currency,
         paymentMethod: form.paymentMethod,
         reference: form.reference,
-        status: 'Pending Approval',
+        scheduledDate: form.scheduledDate || null,
+        status: form.scheduledDate ? 'Scheduled' : 'Pending Approval',
         date: new Date().toISOString(),
       };
       await axios.post('http://localhost:3001/payments', newPayment);
@@ -499,7 +531,7 @@ const PaymentPortal = () => {
 
   const handleNewPayment = () => {
     setSuccess(false);
-    setForm({ recipientName: '', recipientAccount: '', recipientBank: '', swiftCode: '', amount: '', currency: 'ZAR', paymentMethod: 'bank_transfer', reference: '' });
+    setForm({ recipientName: '', recipientAccount: '', recipientBank: '', swiftCode: '', amount: '', currency: 'ZAR', paymentMethod: 'bank_transfer', reference: '', scheduledDate: '' });
     setErrors({});
   };
 
@@ -507,6 +539,7 @@ const PaymentPortal = () => {
     if (status === 'Successful') return <span style={s.badgeSuccess}>✅ Successful</span>;
     if (status === 'Declined')   return <span style={s.badgeDeclined}>❌ Declined</span>;
     if (status === 'Smart inContact') return <span style={s.badgeContact}>📞 Smart inContact</span>;
+    if (status === 'Scheduled') return <span style={{background: '#e0e7ff', color: '#3730a3', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600'}}>📅 Scheduled</span>;
     return <span style={s.badgePending}>⏳ Pending Approval</span>;
   };
 
@@ -777,6 +810,23 @@ const PaymentPortal = () => {
             {errors.reference && <span style={s.errorText}>{errors.reference}</span>}
           </div>
 
+          <div style={s.fieldGroupFull}>
+            <label style={s.label}>Schedule Payment (optional — leave blank for immediate)</label>
+            <input
+              style={s.inputBox}
+              name="scheduledDate"
+              type="date"
+              min={new Date().toISOString().split('T')[0]}
+              value={form.scheduledDate}
+              onChange={handleChange}
+            />
+            {form.scheduledDate && (
+              <span style={{ fontSize: '12px', color: '#667eea', fontWeight: '600', marginTop: '4px' }}>
+                📅 Scheduled for {new Date(form.scheduledDate).toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </span>
+            )}
+          </div>
+
           {amount > 0 && (
             <div style={s.summaryBox}>
               <div style={s.summaryTitle}>Transfer Summary</div>
@@ -792,7 +842,7 @@ const PaymentPortal = () => {
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? 'Processing Payment...' : `Send Payment`}
+            {loading ? 'Processing...' : form.scheduledDate ? `Schedule Payment` : `Send Payment`}
           </button>
         </div>
       </div>

@@ -137,12 +137,18 @@ const LoginSignup = () => {
         return;
       }
 
+      const passwordAge = sessionCheck.data.passwordChangedAt
+        ? Math.floor((Date.now() - new Date(sessionCheck.data.passwordChangedAt).getTime()) / (1000 * 60 * 60 * 24))
+        : 999;
+
+      const forceChange = sessionCheck.data.mustChangePassword || passwordAge >= 30;
+
       await axios.patch(`http://localhost:3001/users/${user.id}`, { isLoggedIn: true });
 
       if (user.role === 'admin') {
-        navigate('/admin', { state: { user } });
+        navigate('/admin', { state: { user: { ...sessionCheck.data, mustChangePassword: forceChange } } });
       } else {
-        navigate('/portal', { state: { user } });
+        navigate('/portal', { state: { user: { ...sessionCheck.data, mustChangePassword: forceChange } } });
       }
     } catch (err) {
       const newAttempts = failedAttempts + 1;

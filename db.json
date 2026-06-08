@@ -1,4 +1,5 @@
 {
+  "auditLog": [],
   "users": [
     {
       "id": "emp001",
@@ -50,6 +51,14 @@
       "password": "$2b$10$8i/PfsbPm451TBv6wGBQaej1W5ua.f2iTrCejJQXAQnUGs7iyJkKS",
       "mustChangePassword": false,
       "id": "HPFORKo9-KE",
+      "isLoggedIn": false
+    },
+    {
+      "name": "Johnsmith",
+      "email": "JohnS@globalpay.com",
+      "password": "$2b$10$bWmePwQ4RkBzxznG7y9Z0.BMFfC7NjdoUAFjgtDeSMxQW5FHj.rzm",
+      "mustChangePassword": false,
+      "id": "-N9AcxSVa4g",
       "isLoggedIn": false
     }
   ],
