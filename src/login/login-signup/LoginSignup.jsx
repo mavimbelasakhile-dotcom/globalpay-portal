@@ -139,9 +139,9 @@ const LoginSignup = () => {
 
       const passwordAge = sessionCheck.data.passwordChangedAt
         ? Math.floor((Date.now() - new Date(sessionCheck.data.passwordChangedAt).getTime()) / (1000 * 60 * 60 * 24))
-        : 999;
+        : 0;
 
-      const forceChange = sessionCheck.data.mustChangePassword || passwordAge >= 30;
+      const forceChange = sessionCheck.data.mustChangePassword === true || (sessionCheck.data.passwordChangedAt && passwordAge >= 30);
 
       await axios.patch(`http://localhost:3001/users/${user.id}`, { isLoggedIn: true });
 
