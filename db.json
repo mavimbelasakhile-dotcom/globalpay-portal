@@ -12,7 +12,8 @@
       "name": "Admin User",
       "email": "admin@globalpay.co.za",
       "password": "$2b$10$2C5peUq94mgLDIhpoZF4H.xn/TEsfHn8aXrqLNr.OETdoCYnClc3y",
-      "role": "admin"
+      "role": "admin",
+      "isLoggedIn": false
     },
     {
       "name": "Thendos",
@@ -34,7 +35,22 @@
       "password": "$2b$10$x7thcAEbAZ4EmIoLK2YzX.sCCpw.VuQyRKuxi4PQswODSX2nijHlK",
       "mustChangePassword": false,
       "id": "P6-iTcDw8Js",
-      "isLoggedIn": true
+      "isLoggedIn": false
+    },
+    {
+      "name": "AyandaN",
+      "email": "AyandaN@globalpay.com",
+      "password": "$2b$10$/C7kLDo/JVYURf.XqEBMkevDbozCEk9ICLXxbJSwLkBpCu9Lti5S6",
+      "mustChangePassword": true,
+      "id": "Mz_YMf68bdU"
+    },
+    {
+      "name": "AyandaN",
+      "email": "AyandaNK@globalpay.com",
+      "password": "$2b$10$8i/PfsbPm451TBv6wGBQaej1W5ua.f2iTrCejJQXAQnUGs7iyJkKS",
+      "mustChangePassword": false,
+      "id": "HPFORKo9-KE",
+      "isLoggedIn": false
     }
   ],
   "payments": [
@@ -107,6 +123,48 @@
       "status": "Successful",
       "date": "2026-06-07T19:58:44.086Z",
       "id": "veY7xtsLOZA"
+    },
+    {
+      "userId": "HPFORKo9-KE",
+      "recipientName": "Credobooks",
+      "recipientAccount": "62745968574",
+      "recipientBank": "FNB",
+      "swiftCode": "FIRNZAJJ",
+      "amount": 20000,
+      "currency": "ZAR",
+      "paymentMethod": "bank_transfer",
+      "reference": "INV0990",
+      "status": "Declined",
+      "date": "2026-06-07T20:55:48.886Z",
+      "id": "G_n9ODpcfkY"
+    },
+    {
+      "userId": "HPFORKo9-KE",
+      "recipientName": "Credobooks",
+      "recipientAccount": "62745968574",
+      "recipientBank": "FNB",
+      "swiftCode": "FIRNZAJJ",
+      "amount": 5000,
+      "currency": "ZAR",
+      "paymentMethod": "paypal",
+      "reference": "trazfgjhntfg",
+      "status": "Successful",
+      "date": "2026-06-07T20:58:52.881Z",
+      "id": "BiwLCgadnsE"
+    },
+    {
+      "userId": "HPFORKo9-KE",
+      "recipientName": "Credobooks",
+      "recipientAccount": "62745968574",
+      "recipientBank": "Absa",
+      "swiftCode": "ABSAZAJJ",
+      "amount": 100,
+      "currency": "ZAR",
+      "paymentMethod": "bank_transfer",
+      "reference": "trazfgjhntfg",
+      "status": "Declined",
+      "date": "2026-06-07T21:02:11.388Z",
+      "id": "GhrU3pHB2I8"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
